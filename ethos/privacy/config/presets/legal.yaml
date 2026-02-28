@@ -1,0 +1,34 @@
+# EthosAI — Legal Config Preset
+# PII + Business, high sensitivity
+
+scanner:
+  families:
+    - PII
+    - BUSINESS
+  sensitivity: high
+  entropy:
+    enabled: false
+  custom_detectors: []
+  safe_fields:
+    - case_number
+    - court_name
+    - statute_reference
+    - query_text
+
+vault:
+  backend: memory
+  backend_config: {}
+  token_expiry_minutes: 120
+  encryption: true
+  encryption_algorithm: AES-256-GCM
+  alerts:
+    enabled: true
+    critical_families:
+      - SECRETS
+      - FINANCIAL
+    on_critical: log
+    recommend_rotation: false
+
+resolver:
+  strict_session: true
+  leave_unresolved_tokens: true

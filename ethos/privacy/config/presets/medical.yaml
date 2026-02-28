@@ -1,0 +1,39 @@
+# EthosAI — Medical Config Preset
+# PII + Business, medium sensitivity
+
+scanner:
+  families:
+    - PII
+    - BUSINESS
+  sensitivity: medium
+  entropy:
+    enabled: true
+    threshold: 3.5
+    min_length: 16
+    max_length: 512
+    require_context_word: true
+  custom_detectors: []
+  safe_fields:
+    - diagnosis_code
+    - icd_code
+    - medication_name
+    - dosage
+    - query_text
+
+vault:
+  backend: memory
+  backend_config: {}
+  token_expiry_minutes: 60
+  encryption: true
+  encryption_algorithm: AES-256-GCM
+  alerts:
+    enabled: true
+    critical_families:
+      - SECRETS
+      - FINANCIAL
+    on_critical: log
+    recommend_rotation: false
+
+resolver:
+  strict_session: true
+  leave_unresolved_tokens: true

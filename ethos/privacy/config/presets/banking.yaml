@@ -1,0 +1,40 @@
+# EthosAI — Banking Config Preset
+# PII + Financial + Secrets, high sensitivity
+
+scanner:
+  families:
+    - PII
+    - SECRETS
+    - FINANCIAL
+  sensitivity: high
+  entropy:
+    enabled: true
+    threshold: 3.2
+    min_length: 16
+    max_length: 512
+    require_context_word: true
+  custom_detectors: []
+  safe_fields:
+    - credit_score
+    - loan_amount
+    - loan_tenure
+    - interest_rate
+    - query_text
+
+vault:
+  backend: memory
+  backend_config: {}
+  token_expiry_minutes: 30
+  encryption: true
+  encryption_algorithm: AES-256-GCM
+  alerts:
+    enabled: true
+    critical_families:
+      - SECRETS
+      - FINANCIAL
+    on_critical: log
+    recommend_rotation: true
+
+resolver:
+  strict_session: true
+  leave_unresolved_tokens: true
