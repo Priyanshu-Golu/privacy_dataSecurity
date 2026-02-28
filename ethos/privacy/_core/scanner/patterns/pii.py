@@ -68,6 +68,20 @@ DOB_RE = _reg(
 PII_PATTERNS.append(("DOB", DOB_RE, 0.90, AlertLevel.HIGH, False))
 
 
+# ── OTP / Verification Code ────────────────────────────────────────────────────
+# 4–8 digit numeric code beside an OTP/verification keyword.
+# Context-driven: "OTP is 123456", "verification code: 482910", "passcode 7834"
+OTP_RE = _reg(
+    r"(?:otp|one.?time.?(?:password|passcode|code)|verification.?code|"
+    r"passcode|auth(?:entication)?.?code|security.?code|confirm(?:ation)?.?code)"
+    r"\s*(?:is|[:=\-])?\s*(\b[0-9]{4,8}\b)",
+    flags=regex.IGNORECASE,
+)
+PII_PATTERNS.append(("OTP", OTP_RE, 0.95, AlertLevel.CRITICAL, False))
+
+
+
+
 # ── Full Name (heuristic: Title Case 2-4 words, triggered by name keywords) ──
 # This is pattern-based; not a true NER but works for clear contexts.
 FULL_NAME_RE = _reg(

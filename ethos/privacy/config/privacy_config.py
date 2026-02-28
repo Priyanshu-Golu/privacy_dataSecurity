@@ -58,6 +58,14 @@ class PrivacyConfig:
 
         self.custom_detectors: List[str] = scanner_cfg.get("custom_detectors", [])
 
+        # ── NLP config ─────────────────────────────────────────────────────
+        nlp_cfg = scanner_cfg.get("nlp", {})
+        self.nlp_enabled: bool        = nlp_cfg.get("enabled", True)
+        self.nlp_model: str           = nlp_cfg.get("model", "en_core_web_sm")
+        self.nlp_min_confidence: float = float(nlp_cfg.get("min_confidence", 0.60))
+        self.nlp_context_boost: float  = float(nlp_cfg.get("context_boost", 0.15))
+
+
         # ── Vault config ───────────────────────────────────────────────────
         vault_cfg = raw.get("vault", {})
         self.backend: str                   = vault_cfg.get("backend", "memory")
@@ -94,6 +102,12 @@ class PrivacyConfig:
                 "min_length":           self.entropy_min_length,
                 "max_length":           self.entropy_max_length,
                 "require_context_word": self.entropy_require_context,
+            },
+            "nlp": {
+                "enabled":        self.nlp_enabled,
+                "model":          self.nlp_model,
+                "min_confidence": self.nlp_min_confidence,
+                "context_boost":  self.nlp_context_boost,
             },
         }
 

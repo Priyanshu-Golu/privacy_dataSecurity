@@ -9,9 +9,15 @@ Run with:
 
 import sys
 import os
+import io
+
+# Force UTF-8 output so ⟨TKN_...⟩ tokens display correctly on Windows
+if hasattr(sys.stdout, "buffer"):
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 # Ensure the package root is on the path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 
 from ethos.privacy import PrivacyDataSecurity
 
@@ -56,11 +62,9 @@ def main():
     header("STEP 1 — INPUT (what the user typed)")
 
     raw_input = (
-        "My name is Priya Sharma. Aadhaar: 8279-5423-1806.\n"
-        "Phone: +91-9876543210. Email: priya.sharma@gmail.com.\n"
-        "My OpenAI key is sk-proj-abc123XYZsecretKEYdemo9876.\n"
-        "DB: postgresql://admin:pass123@prod.db.internal:5432/users\n"
-        "Please fix my code."
+        "1. The applicant with aadhaar number 4567-8901-2345 and pan ABCDE1234F has requested a change in their registered phone number, +91-9876543210\n"
+        "2. Transaction failed for card_number 4111-2222-3333-4444; please verify if the cvv 902 and the expiry of 12/28 were entered correctly at the bank gateway.\n"
+        "3. Employee record #8829 shows an ssn of 666-00-1234 and a dob of 1985-05-22, which does not match our current address database.\n"
     )
 
     print(f"\n{CYAN}{raw_input}{RESET}")

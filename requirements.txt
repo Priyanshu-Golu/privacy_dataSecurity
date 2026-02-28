@@ -2,6 +2,10 @@ cryptography>=41.0.0
 pyyaml>=6.0
 regex>=2023.0.0
 numpy>=1.24.0
+spacy>=3.7.0          # NLP engine (Strategy E)
+
+# After installing, download the English model:
+#   python -m spacy download en_core_web_sm
 
 # Optional — only if using Redis or encrypted_db backends
 # redis>=5.0.0

@@ -1,11 +1,17 @@
 """
 ethos.privacy._core.scanner.universal_scanner
 ============================================
-Step 6: Universal Scanner — orchestrates all four detection strategies.
+Universal Scanner — orchestrates all five detection strategies.
 Single entry point: scanner.scan(text_or_dict, config) → List[ScanResult]
 
-Runs Pattern, Entropy, Context, and Structure engines
-then merges and deduplicates results.
+Strategies:
+  A: Pattern   — regex + Luhn/Verhoeff validators
+  B: Entropy   — Shannon entropy for unknown secrets
+  C: Context   — key=value assignments + proximity boost
+  D: Structure — pasted .env / JSON / YAML blocks
+  E: NLP       — spaCy Named Entity Recognition (PERSON, DATE, GPE, …)
+
+All strategy results are merged and deduplicated before returning.
 """
 
 from __future__ import annotations
@@ -17,6 +23,7 @@ from ethos.privacy._core.scanner.pattern_engine import PatternEngine
 from ethos.privacy._core.scanner.entropy_engine import EntropyEngine
 from ethos.privacy._core.scanner.context_engine import ContextEngine
 from ethos.privacy._core.scanner.structure_engine import StructureEngine
+from ethos.privacy._core.scanner.nlp_engine import NLPEngine
 
 
 class UniversalScanner:
@@ -41,6 +48,12 @@ class UniversalScanner:
         entropy_cfg = cfg.get("entropy", {})
         entropy_enabled = entropy_cfg.get("enabled", True)
 
+        nlp_cfg = cfg.get("nlp", {})
+        nlp_enabled = nlp_cfg.get("enabled", True)
+        nlp_model   = nlp_cfg.get("model", "en_core_web_sm")
+        nlp_min_conf = float(nlp_cfg.get("min_confidence", 0.60))
+        nlp_context_boost = float(nlp_cfg.get("context_boost", 0.15))
+
         # Initialise sub-engines
         self._pattern_engine = PatternEngine(
             sensitivity=sensitivity,
@@ -58,8 +71,15 @@ class UniversalScanner:
         self._structure_engine = StructureEngine(
             enabled_families=self.enabled_families,
         )
+        self._nlp_engine = NLPEngine(
+            model          = nlp_model,
+            enabled        = nlp_enabled,
+            min_confidence = nlp_min_conf,
+            context_boost  = nlp_context_boost,
+        )
 
         self._safe_fields = [f.lower() for f in safe_fields]
+
 
     def scan(self, content: Union[str, Dict[str, Any]]) -> List[ScanResult]:
         """
@@ -103,6 +123,18 @@ class UniversalScanner:
         # Strategy D: Structure engine
         struct_results = self._structure_engine.scan(text)
         all_results.extend(struct_results)
+
+        # Strategy E: NLP engine — entity-based context detection
+        # Pass existing spans so NLP does not duplicate already-found items
+        existing_spans = [
+            r.position for r in all_results if r.position is not None
+        ]
+        nlp_results = self._nlp_engine.scan(
+            text,
+            enabled_families=self.enabled_families,
+            existing_spans=existing_spans,
+        )
+        all_results.extend(nlp_results)
 
         return _deduplicate(all_results)
 
