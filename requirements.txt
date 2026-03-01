@@ -7,6 +7,10 @@ spacy>=3.7.0          # NLP engine (Strategy E)
 # After installing, download the English model:
 #   python -m spacy download en_core_web_sm
 
+# Gemini API — for real AI E2E tests
+google-generativeai>=0.8.0
+python-dotenv>=1.0.0  # load GEMINI_API_KEY from .env
+
 # Optional — only if using Redis or encrypted_db backends
 # redis>=5.0.0
 # sqlalchemy>=2.0.0
